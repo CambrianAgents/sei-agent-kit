@@ -1,6 +1,6 @@
 import { SeiAgentKit } from "../../agent";
-import { Symphony } from 'symphony-sdk/viem';
 import { Address } from "viem";
+import { createSymphony } from "../../utils/symphony-wrapper";
 
 /**
  * Swaps tokens using the Symphony aggregator
@@ -18,7 +18,8 @@ export async function swap(
 ): Promise<string> {
   try {
     console.log("Swapping tokens...");
-    const symphonySDK = new Symphony({ walletClient: agent.walletClient });
+    // Use our wrapper to create the Symphony instance
+    const symphonySDK = await createSymphony({ walletClient: agent.walletClient });
 
     // Connect wallet client to Symphony SDK
     symphonySDK.connectWalletClient(agent.walletClient);

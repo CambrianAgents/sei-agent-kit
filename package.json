@@ -1,9 +1,16 @@
 {
   "name": "sei-agent-kit",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "A package for building AI agents on the SEI blockchain",
   "main": "dist/index.js",
-  "scripts": {},
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "npx tsc && mkdir -p dist/types && cp src/types/symphony-sdk.d.ts dist/types/",
+    "prepublishOnly": "npm run build"
+  },
   "keywords": [
     "sei",
     "sei-agent-kit",
@@ -11,6 +18,10 @@
   ],
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CambrianAgents/sei-agent-kit"
+  },
   "dependencies": {
     "@cosmjs/stargate": "^0.33.0",
     "@langchain/langgraph": "^0.2.46",
@@ -21,7 +32,7 @@
     "langchain": "^0.3.19",
     "openai": "^3.3.0",
     "symphony-sdk": "^2.1.0",
-    "viem": "^2.23.3",
+    "viem": "^2.26.5",
     "wagmi": "^2.14.12",
     "zod": "^3.24.2"
   },
@@ -38,7 +49,7 @@
     "lint-staged": "^15.3.0",
     "prettier": "^3.4.2",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.3",
     "vitest": "^3.1.1"
   }
 }
