@@ -2,12 +2,11 @@ import { z } from "zod";
 import { StructuredTool } from "langchain/tools";
 import { SeiAgentKit } from "../../agent";
 import { mintTakara } from "../../tools/takara";
-import { Address } from "viem";
 
 const SeiMintTakaraInputSchema = z.object({
-  tTokenAddress: z
+  ticker: z
     .string()
-    .describe("The address of the tToken to mint (e.g., tUSDC)"),
+    .describe("The ticker of the tToken to mint (e.g., tUSDC)"),
   mintAmount: z
     .string()
     .describe("The amount to mint in human-readable format (e.g., '100' for 100 USDC)"),
@@ -25,18 +24,17 @@ export class SeiMintTakaraTool extends StructuredTool<typeof SeiMintTakaraInputS
     super();
   }
 
-  protected async _call({ tTokenAddress, mintAmount }: z.infer<typeof SeiMintTakaraInputSchema>): Promise<string> {
+  protected async _call({ ticker, mintAmount }: z.infer<typeof SeiMintTakaraInputSchema>): Promise<string> {
     try {
       const result = await mintTakara(this.seiKit, {
-        tTokenAddress: tTokenAddress as Address,
+        ticker: ticker,
         mintAmount,
       });
 
       return JSON.stringify({
         status: "success",
-        message: `Successfully minted tTokens. Transaction hash: ${result.txHash}. Expected tToken amount: ${result.expectedTTokenAmount}`,
-        txHash: result.txHash,
-        expectedTTokenAmount: result.expectedTTokenAmount,
+        message: `Successfully minted tTokens. Transaction hash: ${result}.`,
+        txHash: result,
       });
     } catch (error: any) {
       return JSON.stringify({

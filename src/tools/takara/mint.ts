@@ -10,10 +10,10 @@ import { sei } from 'viem/chains';
 import { getTokenDecimals } from '../../utils/getTokenDecimals';
 import { tTokenAbi } from './abi/mint/t_Tokenabi';
 import { erc20Abi } from './abi/mint/erc20abi';
-
+import { getTakaraTTokenAddress } from './tokenMap';
 // Define the interface for the mint function parameters
 export interface MintTakaraParams {
-  tTokenAddress: Address;
+  ticker: string;
   mintAmount: string; // Amount in human-readable format (e.g., "100" for 100 USDC)
 }
 
@@ -21,15 +21,15 @@ export interface MintTakaraParams {
  * Mints tTokens by depositing underlying tokens into Takara Protocol
  * @param agent SeiAgentKit instance
  * @param params Parameters for minting
- * @returns Transaction hash and expected tToken amount
+ * @returns Transaction hash
  */
-export async function mintTakara(agent: SeiAgentKit, {
-  tTokenAddress,
-  mintAmount,
-}: MintTakaraParams): Promise<{
-  txHash: Hash,
-  expectedTTokenAmount: string
-}> {
+  export async function mintTakara(agent: SeiAgentKit, params: MintTakaraParams): Promise< Address > {
+
+  const tTokenAddress = getTakaraTTokenAddress(params.ticker);
+  if (!tTokenAddress) {
+    throw new Error(`Invalid ticker: ${params.ticker}`);
+  }
+
   // 1. Get the underlying token address from the tToken contract
   const underlyingTokenAddress = await agent.publicClient.readContract({
     address: tTokenAddress,
@@ -41,7 +41,7 @@ export async function mintTakara(agent: SeiAgentKit, {
   const tokenDecimals = await getTokenDecimals(agent, underlyingTokenAddress);
 
   // 3. Convert the mint amount to the proper decimal representation
-  const mintAmountRaw = parseUnits(mintAmount, tokenDecimals);
+  const mintAmountRaw = parseUnits(params.mintAmount, tokenDecimals);
 
   // 4. Check user's current token balance
   const tokenBalance = await agent.publicClient.readContract({
@@ -53,7 +53,7 @@ export async function mintTakara(agent: SeiAgentKit, {
 
   // Ensure user has enough tokens
   if (tokenBalance < mintAmountRaw) {
-    throw new Error(`Insufficient token balance. Required: ${mintAmount}, Available: ${formatUnits(tokenBalance, tokenDecimals)}`);
+    throw new Error(`Insufficient token balance. Required: ${params.mintAmount}, Available: ${formatUnits(tokenBalance, tokenDecimals)}`);
   }
 
   const account = agent.walletClient.account as Account;
@@ -115,8 +115,5 @@ export async function mintTakara(agent: SeiAgentKit, {
     args: [agent.wallet_address],
   });
 
-  return {
-    txHash: mintTxHash,
-    expectedTTokenAmount
-  };
+  return mintTxHash;
 } 

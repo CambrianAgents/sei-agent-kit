@@ -11,10 +11,11 @@ import { sei } from 'viem/chains';
 import { comptrollerAbi } from './abi/borrow/controllerabi';
 import { tTokenAbi } from './abi/borrow/t_Tokenabi';
 import { erc20Abi } from './abi/borrow/erc20abi';
+import { getTakaraTTokenAddress } from './tokenMap';
 
 // Define the interface for the borrow function parameters
 export interface BorrowTakaraParams {
-  tTokenAddress: Address;
+  ticker: string;
   borrowAmount: string; // Amount in human-readable format (e.g., "100" for 100 USDC)
 }
 
@@ -26,12 +27,15 @@ export interface BorrowTakaraParams {
  * @returns Transaction hash and borrowed amount
  */
 export async function borrowTakara(agent: SeiAgentKit, {
-  tTokenAddress,
+  ticker,
   borrowAmount
-}: BorrowTakaraParams): Promise<{
-  txHash: Hash,
-  borrowedAmount: string
-}> {
+}: BorrowTakaraParams): Promise<Address> {
+  console.log(`Borrowing ${borrowAmount} ${ticker} from Takara...`);
+  const tTokenAddress = getTakaraTTokenAddress(ticker);
+  if (!tTokenAddress) {
+    throw new Error(`Invalid ticker: ${ticker}`);
+  }
+
   const comptrollerAddress = '0x71034bf5eC0FAd7aEE81a213403c8892F3d8CAeE';
   // 1. Get the underlying token address from the tToken contract
   const underlyingTokenAddress = await agent.publicClient.readContract({
@@ -130,8 +134,5 @@ export async function borrowTakara(agent: SeiAgentKit, {
     args: [agent.wallet_address],
   });
 
-  return {
-    txHash: borrowTxHash,
-    borrowedAmount: borrowAmount
-  };
+  return borrowTxHash;
 } 

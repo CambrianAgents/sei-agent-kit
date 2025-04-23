@@ -10,11 +10,12 @@ import { sei } from 'viem/chains';
 import { getTokenDecimals } from '../../utils/getTokenDecimals';
 import { tTokenAbi } from './abi/repay/t_Tokenabi';
 import { erc20Abi } from './abi/repay/erc20abi';
+import { getTakaraTTokenAddress } from './tokenMap';
 
 
 // Define the interface for the repay function parameters
 export interface RepayTakaraParams {
-  tTokenAddress: Address;
+  ticker: string;
   repayAmount: string; // Amount in human-readable format (e.g., "100" for 100 USDC)
   // Use "MAX" to repay the full borrow balance
 }
@@ -26,12 +27,18 @@ export interface RepayTakaraParams {
  * @returns Transaction hash and amount repaid
  */
 export async function repayTakara(agent: SeiAgentKit, {
-  tTokenAddress,
+  ticker,
   repayAmount
 }: RepayTakaraParams): Promise<{
   txHash: Hash,
   repaidAmount: string
 }> {
+  console.log(`Repaying ${repayAmount} ${ticker} to Takara...`);
+  const tTokenAddress = getTakaraTTokenAddress(ticker);
+  if (!tTokenAddress) {
+    throw new Error(`Invalid ticker: ${ticker}`);
+  }
+
   // 1. Get the underlying token address from the tToken contract
   const underlyingTokenAddress = await agent.publicClient.readContract({
     address: tTokenAddress,

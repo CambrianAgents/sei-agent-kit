@@ -173,8 +173,8 @@ export class SeiAgentKit {
    * @param mintAmount The amount to mint in human-readable format
    * @returns Transaction hash and expected tToken amount
    */
-  async mintTakara(tTokenAddress: Address, mintAmount: string) {
-    return mintTakara(this, { tTokenAddress, mintAmount });
+  async mintTakara(ticker:string, mintAmount: string) {
+    return mintTakara(this, { ticker, mintAmount });
   }
 
   /**
@@ -183,8 +183,8 @@ export class SeiAgentKit {
    * @param borrowAmount The amount to borrow in human-readable format
    * @returns Transaction hash and borrowed amount
    */
-  async borrowTakara(tTokenAddress: Address, borrowAmount: string) {
-    return borrowTakara(this, { tTokenAddress, borrowAmount });
+  async borrowTakara(ticker:string, borrowAmount: string) {
+    return borrowTakara(this, { ticker, borrowAmount });
   }
 
   /**
@@ -193,8 +193,8 @@ export class SeiAgentKit {
    * @param repayAmount The amount to repay in human-readable format, or "MAX" to repay full balance
    * @returns Transaction hash and amount repaid
    */
-  async repayTakara(tTokenAddress: Address, repayAmount: string) {
-    return repayTakara(this, { tTokenAddress, repayAmount });
+  async repayTakara(ticker:string, repayAmount: string) {
+    return repayTakara(this, { ticker, repayAmount });
   }
 
   /**
@@ -204,8 +204,8 @@ export class SeiAgentKit {
    * @param redeemType Whether to redeem underlying tokens or tTokens
    * @returns Transaction details and redemption status
    */
-  async redeemTakara(tTokenAddress: Address, redeemAmount: string, redeemType: RedeemTakaraParams['redeemType'] = 'underlying') {
-    return redeemTakara(this, { tTokenAddress, redeemAmount, redeemType });
+  async redeemTakara(ticker:string, redeemAmount: string, redeemType: RedeemTakaraParams['redeemType'] = 'underlying') {
+    return redeemTakara(this, { ticker, redeemAmount, redeemType });
   }
 
   /**
@@ -214,8 +214,8 @@ export class SeiAgentKit {
    * @param userAddress Optional address of the user to check
    * @returns Information about redeemable amounts
    */
-  async getRedeemableAmount(tTokenAddress: Address, userAddress?: Address) {
-    return getRedeemableAmount(this, tTokenAddress, userAddress);
+  async getRedeemableAmount(ticker:string, userAddress?: Address) {
+    return getRedeemableAmount(this, ticker, userAddress);
   }
 
   /**
@@ -224,8 +224,8 @@ export class SeiAgentKit {
    * @param userAddress Optional address of the user to check
    * @returns Information about the borrow balance
    */
-  async getBorrowBalance(tTokenAddress: Address, userAddress?: Address) {
-    return getBorrowBalance(this, tTokenAddress, userAddress);
+  async getBorrowBalance(ticker:string, userAddress?: Address) {
+    return getBorrowBalance(this, ticker, userAddress);
   }
 
   // DragonSwap methods

@@ -5,17 +5,18 @@ import {
 import { SeiAgentKit } from '../../agent';
 import { getTokenDecimals } from '../../utils/getTokenDecimals';
 import { tTokenAbi } from './abi/query/t_Tokenabi';
+import { getTakaraTTokenAddress } from './tokenMap';
 
 /**
  * Calculates the amount of underlying tokens that can be redeemed by a user
  * @param agent SeiAgentKit instance
- * @param tTokenAddress The address of the tToken contract
+ * @param ticker The token ticker (e.g., "USDC", "SEI")
  * @param userAddress The address of the user (defaults to agent's wallet address)
  * @returns Information about redeemable amounts
  */
 export async function getRedeemableAmount(
   agent: SeiAgentKit,
-  tTokenAddress: Address,
+  ticker: string,
   userAddress?: Address
 ): Promise<{
   tTokenBalance: string,
@@ -25,6 +26,12 @@ export async function getRedeemableAmount(
   underlyingDecimals: number,
   underlyingTokenAddress: Address
 }> {
+  console.log(`Querying redeemable amount for ${ticker} from address ${userAddress || agent.wallet_address}...`);
+  const tTokenAddress = getTakaraTTokenAddress(ticker);
+  if (!tTokenAddress) {
+    throw new Error(`Invalid ticker: ${ticker}`);
+  }
+
   // Use the agent's address if no user address is provided
   const address = userAddress || agent.wallet_address;
 
@@ -79,19 +86,25 @@ export async function getRedeemableAmount(
 /**
  * Retrieves the current borrow balance for a user
  * @param agent SeiAgentKit instance
- * @param tTokenAddress The address of the tToken contract
+ * @param ticker The token ticker (e.g., "USDC", "SEI")
  * @param userAddress The address of the user (defaults to agent's wallet address)
  * @returns Information about the borrow balance
  */
 export async function getBorrowBalance(
   agent: SeiAgentKit,
-  tTokenAddress: Address,
+  ticker: string,
   userAddress?: Address
 ): Promise<{
   borrowBalance: string,
   underlyingDecimals: number,
   underlyingTokenAddress: Address
 }> {
+  console.log(`Querying borrow balance for ${ticker} from address ${userAddress || agent.wallet_address}...`);
+  const tTokenAddress = getTakaraTTokenAddress(ticker);
+  if (!tTokenAddress) {
+    throw new Error(`Invalid ticker: ${ticker}`);
+  }
+
   // Use the agent's address if no user address is provided
   const address = userAddress || agent.wallet_address;
 

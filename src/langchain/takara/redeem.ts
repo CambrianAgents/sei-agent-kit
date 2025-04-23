@@ -5,9 +5,9 @@ import { redeemTakara } from "../../tools/takara";
 import { Address } from "viem";
 
 const SeiRedeemTakaraInputSchema = z.object({
-  tTokenAddress: z
+  ticker: z
     .string()
-    .describe("The address of the tToken to redeem (e.g., tUSDC)"),
+    .describe("The ticker of the tToken to redeem (e.g., tUSDC)"),
   redeemAmount: z
     .string()
     .describe("The amount to redeem in human-readable format (e.g., '50' for 50 USDC). Use 'MAX' to redeem all tTokens"),
@@ -29,10 +29,10 @@ export class SeiRedeemTakaraTool extends StructuredTool<typeof SeiRedeemTakaraIn
     super();
   }
 
-  protected async _call({ tTokenAddress, redeemAmount, redeemType = "underlying" }: z.infer<typeof SeiRedeemTakaraInputSchema>): Promise<string> {
+  protected async _call({ ticker, redeemAmount, redeemType = "underlying" }: z.infer<typeof SeiRedeemTakaraInputSchema>): Promise<string> {
     try {
       const result = await redeemTakara(this.seiKit, {
-        tTokenAddress: tTokenAddress as Address,
+        ticker: ticker,
         redeemAmount,
         redeemType,
       });

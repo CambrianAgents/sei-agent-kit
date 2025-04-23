@@ -10,10 +10,11 @@ import { sei } from 'viem/chains';
 import { getTokenDecimals } from '../../utils/getTokenDecimals';
 import { tTokenAbi } from './abi/redeem/t_Tokenabi';
 import { erc20Abi } from './abi/redeem/erc20abi';
+import { getTakaraTTokenAddress } from './tokenMap';
 
 // Define the interface for the redeem function parameters
 export interface RedeemTakaraParams {
-  tTokenAddress: Address;
+  ticker: string;
   redeemAmount: string; // Amount in human-readable format (e.g., "100" for 100 USDC)
   // Use "MAX" to redeem all tTokens
   redeemType: 'underlying' | 'tokens'; // Whether to redeem a specific amount of underlying tokens or tTokens
@@ -26,7 +27,7 @@ export interface RedeemTakaraParams {
  * @returns Transaction hash and amount redeemed
  */
 export async function redeemTakara(agent: SeiAgentKit, {
-  tTokenAddress,
+  ticker,
   redeemAmount,
   redeemType = 'underlying' // Default to redeeming underlying tokens
 }: RedeemTakaraParams): Promise<{
@@ -36,6 +37,11 @@ export async function redeemTakara(agent: SeiAgentKit, {
   actual: string,
   success: boolean
 }> {
+  console.log(`Redeeming ${redeemAmount} ${ticker} from Takara...`);
+  const tTokenAddress = getTakaraTTokenAddress(ticker);
+  if (!tTokenAddress) {
+    throw new Error(`Invalid ticker: ${ticker}`);
+  }
 
   // 1. Get the underlying token address from the tToken contract
   const underlyingTokenAddress = await agent.publicClient.readContract({
@@ -186,16 +192,6 @@ export async function redeemTakara(agent: SeiAgentKit, {
   // Check if we actually received the expected amount (with a 2% tolerance for gas fees, rounding, etc.)
   const receptionThreshold = (expectedRedemptionAmount * 98n) / 100n; // 98% of expected
   const actuallyReceived = underlyingTokensReceived >= receptionThreshold;
-
-  //   if (!actuallyReceived) {
-  //     console.log(`WARNING: Did not receive the expected amount of tokens.`);
-  //     console.log(`- Expected: ${formatUnits(expectedRedemptionAmount, tokenDecimals)}`);
-  //     console.log(`- Received: ${formatUnits(underlyingTokensReceived, tokenDecimals)}`);
-  //     console.log(`- Minimum Acceptable: ${formatUnits(receptionThreshold, tokenDecimals)}`);
-  //     console.log(`This may be due to liquidity issues in the protocol or other constraints.`);
-  //   } else {
-  //     console.log(`Redemption successful! Received the expected amount of tokens.`);
-  //   }
 
   return {
     txHash: redeemTxHash,

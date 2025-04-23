@@ -5,7 +5,7 @@ import { repayTakara } from "../../tools/takara";
 import { Address } from "viem";
 
 const SeiRepayTakaraInputSchema = z.object({
-  tTokenAddress: z
+  ticker: z
     .string()
     .describe("The address of the tToken to repay (e.g., tUSDC)"),
   repayAmount: z
@@ -25,10 +25,10 @@ export class SeiRepayTakaraTool extends StructuredTool<typeof SeiRepayTakaraInpu
     super();
   }
 
-  protected async _call({ tTokenAddress, repayAmount }: z.infer<typeof SeiRepayTakaraInputSchema>): Promise<string> {
+  protected async _call({ ticker, repayAmount }: z.infer<typeof SeiRepayTakaraInputSchema>): Promise<string> {
     try {
       const result = await repayTakara(this.seiKit, {
-        tTokenAddress: tTokenAddress as Address,
+        ticker: ticker,
         repayAmount,
       });
 
