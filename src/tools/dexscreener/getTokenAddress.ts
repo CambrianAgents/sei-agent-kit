@@ -8,6 +8,7 @@ import { Address } from "viem";
 export async function getTokenAddressFromTicker(
   ticker: string,
 ): Promise<Address | null> {
+  console.log(`Getting token address for ${ticker}...`);
   if (typeof ticker !== 'string' || ticker.trim() === '') {
     throw new Error("Ticker must be a non-empty string");
   }

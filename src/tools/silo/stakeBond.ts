@@ -13,7 +13,12 @@ export async function stakeSei(
   agent: SeiAgentKit,
   amount: string
 ): Promise<string> {
+  console.log(`Staking ${amount} SEI...`);
   const amountNum = Number(amount);
+  if (Number(await agent.getERC20Balance()) < amountNum) {
+    console.log(`Insufficient balance of sei`);
+    throw new Error("Insufficient balance");
+  }
   if (isNaN(amountNum) || amountNum <= 0) {
     const errorMsg = `Invalid staking amount: ${amount}. Amount must be a positive number.`;
     throw new Error(errorMsg);

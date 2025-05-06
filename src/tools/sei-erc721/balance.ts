@@ -20,6 +20,8 @@ export async function get_erc721_balance(
     throw new Error(errorMsg);
   }
 
+  console.log(`Querying NFT balance for ${agent.wallet_address} at ${token_address}...`);
+
   try {
     // Verify that the token address is a contract
     const isTokenContract = await isContract(agent, token_address);

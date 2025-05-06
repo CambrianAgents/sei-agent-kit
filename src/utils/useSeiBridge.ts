@@ -86,7 +86,7 @@ export async function seiBridge({
     : toHex(JSON.stringify([]));
 
   // Initialize provider using the chain's EVM RPC URL
-  const provider = new ethers.providers.JsonRpcProvider(chainConfig.evmRpcUrl);
+  const provider = new ethers.providers.JsonRpcProvider({url: chainConfig.evmRpcUrl, skipFetchSetup: true});
 
   const privateKey = process.env.SEI_PRIVATE_KEY!;
   let signer = new ethers.Wallet(privateKey, provider);

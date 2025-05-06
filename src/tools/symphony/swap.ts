@@ -1,6 +1,6 @@
 import { SeiAgentKit } from "../../agent";
+import { Symphony } from 'symphony-sdk/viem';
 import { Address } from "viem";
-import { createSymphony } from "../../utils/symphony-wrapper";
 
 /**
  * Swaps tokens using the Symphony aggregator
@@ -17,9 +17,18 @@ export async function swap(
   tokenOut: Address,
 ): Promise<string> {
   try {
-    console.log("Swapping tokens...");
-    // Use our wrapper to create the Symphony instance
-    const symphonySDK = await createSymphony({ walletClient: agent.walletClient });
+    console.log(`Swapping ${amount} ${tokenIn} to ${tokenOut}...`);
+    if (tokenIn === '0x0') {
+      if (Number(await agent.getERC20Balance()) < Number(amount)) {
+        console.log(`Insufficient balance of sei`);
+        throw new Error("Insufficient balance");
+      }
+    }
+    else if (Number(await agent.getERC20Balance(tokenIn)) < Number(amount)) {
+      console.log(`Insufficient balance of ${tokenIn}`);
+      throw new Error("Insufficient balance");
+    }
+    const symphonySDK = new Symphony({ walletClient: agent.walletClient });
 
     // Connect wallet client to Symphony SDK
     symphonySDK.connectWalletClient(agent.walletClient);
@@ -30,7 +39,6 @@ export async function swap(
       tokenOut,
       amount
     );
-    console.log(route);
     // Check if approval is needed
     const isApproved = await route.checkApproval();
     if (!isApproved) {

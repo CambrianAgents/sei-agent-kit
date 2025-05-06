@@ -13,7 +13,12 @@ export async function unstakeSei(
   agent: SeiAgentKit,
   amount: string
 ): Promise<string> {
+  console.log(`Unstaking ${amount} SEI...`);
   const amountNum = Number(amount);
+  if (Number(await agent.getERC20Balance('0x5cf6826140c1c56ff49c808a1a75407cd1df9423')) < amountNum) {
+    console.log(`Insufficient balance of isei`);
+    throw new Error("Insufficient balance");
+  }
   if (isNaN(amountNum) || amountNum <= 0) {
     const errorMsg = `Invalid unstaking amount: ${amount}. Amount must be a positive number.`;
     throw new Error(errorMsg);
@@ -42,13 +47,12 @@ export async function unstakeSei(
     if (!seiBridge) {
       throw new Error("SEI bridge utility is not available");
     }
-    const gas = await agent.publicClient.estimateGas({ account: agent.walletClient.account });
+    
     const tx_hash = await seiBridge({
       agent,
       executeMsg,
       fundsMsg,
       chainConfig,
-      amount,
     });
 
     if (!tx_hash) {

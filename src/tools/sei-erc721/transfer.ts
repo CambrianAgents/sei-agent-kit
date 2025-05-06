@@ -23,6 +23,7 @@ export async function erc721Transfer(
   tokenAddress: Address,
   tokenId: bigint,
 ): Promise<string> {
+  console.log(`Transferring NFT #${tokenId} from ${tokenAddress} to ${recipient}...`);
   try {
     // Validate input parameters
     if (!agent) {

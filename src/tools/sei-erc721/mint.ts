@@ -21,6 +21,7 @@ export async function erc721Mint(
   tokenAddress: Address,
   tokenId: bigint,
 ): Promise<string> {
+  console.log(`Minting NFT to ${recipient} at ${tokenAddress}...`);
   try {
     // Validate input parameters
     if (!agent) {
