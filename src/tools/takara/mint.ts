@@ -24,7 +24,6 @@ export interface MintTakaraParams {
  * @returns Transaction hash
  */
   export async function mintTakara(agent: SeiAgentKit, params: MintTakaraParams): Promise< Address > {
-
   const tTokenAddress = getTakaraTTokenAddress(params.ticker);
   if (!tTokenAddress) {
     throw new Error(`Invalid ticker: ${params.ticker}`);

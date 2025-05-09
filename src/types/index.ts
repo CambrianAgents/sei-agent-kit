@@ -1,7 +1,9 @@
+import { Address } from "viem"
+
 export interface IToken {
   id: string,
   attributes: {
-    address: `0x${string}`,
+    address: Address,
     name: string,
     symbol: string,
     decimals: number,
@@ -20,4 +22,18 @@ export enum ModelProviderName {
   GROQ = "groq",
   MISTRAL = "mistral",
   OPENAI = "openai",
+}
+
+/**
+ * Token data
+ */
+export type TokenData = {
+  address: Address,
+  name: string,
+  symbol: string,
+  usd_price: number,
+  decimals: number,
+  liquidity: number,
+  description: string | null,
+  change: any
 }

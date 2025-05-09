@@ -11,7 +11,8 @@ export class SeiGetTokenAddressTool extends StructuredTool<typeof GetTokenAddres
   description = `Retrieve a token's contract address by its ticker/symbol.
   
   Parameters:
-  - ticker: The token ticker/symbol (e.g., "USDC", "ETH").`;
+  - ticker: The token ticker/symbol (e.g., "USDC", "ETH").
+  Important: Never Use sei as a Ticker`;
   schema = GetTokenAddressInputSchema;
 
   constructor(private readonly seiKit: SeiAgentKit) {
