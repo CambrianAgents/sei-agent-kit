@@ -22,7 +22,8 @@ import {
   SeiRedeemTakaraTool,
   SeiGetRedeemableAmountTool,
   SeiGetBorrowBalanceTool,
-  GetTokenDataTool
+  GetTokenDataTool,
+  checkAvailableTokensTool
 } from './index';
 
 
@@ -44,5 +45,6 @@ export function createSeiTools(seiKit: SeiAgentKit) {
     new SeiGetRedeemableAmountTool(seiKit),
     new SeiGetBorrowBalanceTool(seiKit),
     new GetTokenDataTool(seiKit),
+    new checkAvailableTokensTool(seiKit)
   ];
 }

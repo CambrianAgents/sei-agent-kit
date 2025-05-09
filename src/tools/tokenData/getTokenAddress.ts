@@ -20,7 +20,7 @@ export async function getTokenAddressFromTicker(
     );
 
     if (!response.ok) {
-      throw new Error(`DexScreener API request failed with status: ${response.status}`);
+      throw new Error(`API request failed with status: ${response.status}`);
     }
 
     const data = await response.json();

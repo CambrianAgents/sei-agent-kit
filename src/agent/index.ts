@@ -9,7 +9,7 @@ import {
 } from "viem";
 import { sei } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { get_erc20_balance, erc20_transfer, get_erc721_balance, erc721Transfer, erc721Mint, stakeSei, unstakeSei, getTokenAddressFromTicker, getTokenData} from '../tools';
+import { get_erc20_balance, erc20_transfer, get_erc721_balance, erc721Transfer, erc721Mint, stakeSei, unstakeSei, getTokenAddressFromTicker, getTokenData, checkAvailableTokens} from '../tools';
 import {
   mintTakara,
   borrowTakara,
@@ -238,5 +238,13 @@ export class SeiAgentKit {
       throw new Error(`No token address found for ticker: ${ticker}`);
     }
     return getTokenData(address);
+  }
+
+  /**
+   * Gets token data
+   * @returns Available tokens in Sei
+   */
+  async checkAvailableTokens() {
+    return checkAvailableTokens();
   }
 }

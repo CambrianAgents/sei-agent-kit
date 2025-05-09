@@ -41,19 +41,19 @@ function checkRequiredEnvVars(): void {
 async function setupAgent() {
   try {
     
-    const llm = new ChatOpenAI({
-      model: "gpt-4o",
-      temperature: 0,
-    });
-    // const llm = new ChatAnthropic({
-    //   model: "claude-3-7-sonnet-latest",
+    // const llm = new ChatOpenAI({
+    //   model: "gpt-4o",
     //   temperature: 0,
     // });
+    const llm = new ChatAnthropic({
+      model: "claude-3-7-sonnet-latest",
+      temperature: 0,
+    });
   
 
     const agentInstance = new SeiAgentKit(
       process.env.SEI_PRIVATE_KEY!,
-      ModelProviderName.OPENAI,
+      ModelProviderName.ANTHROPIC,
     );
     const agentTools = createSeiTools(agentInstance);
 
