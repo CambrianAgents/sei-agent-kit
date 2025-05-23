@@ -4,7 +4,8 @@
   "description": "A package for building AI agents on the SEI blockchain",
   "main": "dist/index.js",
   "scripts": {
-    "test": "tsx test/index.ts"
+    "test": "tsx test/index.ts",
+    "telegram": "tsx test/testMessage.ts"
   },
   "keywords": [
     "sei",
@@ -24,6 +25,7 @@
     "langchain": "^0.3.19",
     "openai": "^3.3.0",
     "symphony-sdk": "^2.1.0",
+    "telegraf": "^4.16.3",
     "twitter-api-v2": "^1.23.2",
     "viem": "^2.23.3",
     "wagmi": "^2.14.12",

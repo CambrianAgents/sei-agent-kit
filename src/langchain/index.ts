@@ -5,6 +5,8 @@ export * from './dexscreener';
 export * from './silo';
 export * from './takara';
 export * from './twitter';
+export * from './telegram';
+
 import type { SeiAgentKit } from "../agent";
 import {
   SeiERC20BalanceTool,
@@ -26,6 +28,8 @@ import {
   SeiGetAccountDetailsTool,
   SeiGetAccountMentionsTool,
   SeiPostTweetReplyTool,
+  SeiGetTelegramUpdatesTool,
+  SeiSendTelegramMessageTool,
 } from './index';
 
 
@@ -50,6 +54,8 @@ export function createSeiTools(seiKit: SeiAgentKit) {
     new SeiGetAccountDetailsTool(seiKit),
     new SeiGetAccountMentionsTool(seiKit),
     new SeiPostTweetReplyTool(seiKit),
+    new SeiGetTelegramUpdatesTool(seiKit),
+    new SeiSendTelegramMessageTool(seiKit),
   ];
 }
      

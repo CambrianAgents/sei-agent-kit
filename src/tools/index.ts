@@ -5,3 +5,4 @@ export * from './dexscreener';
 export * from './silo';
 export * from './symphony';
 export * from './twitter';
+export * from './telegram';

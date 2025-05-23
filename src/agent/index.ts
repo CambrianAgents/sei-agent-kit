@@ -9,7 +9,7 @@ import {
 } from "viem";
 import { sei } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
-import { get_erc20_balance, erc20_transfer, get_erc721_balance, erc721Transfer, erc721Mint, stakeSei, unstakeSei, getTokenAddressFromTicker, postTweet, TwitterPostTweetSchema, getAccountDetails, getAccountMentions, TwitterAccountMentionsSchema, postTweetReply, TwitterPostTweetReplySchema } from '../tools';
+import { get_erc20_balance, erc20_transfer, get_erc721_balance, erc721Transfer, erc721Mint, stakeSei, unstakeSei, getTokenAddressFromTicker, postTweet, TwitterPostTweetSchema, getAccountDetails, getAccountMentions, TwitterAccountMentionsSchema, postTweetReply, TwitterPostTweetReplySchema, getUpdates, sendMessage, TelegramSendMessageSchema } from '../tools';
 import {
   mintTakara,
   borrowTakara,
@@ -262,4 +262,22 @@ export class SeiAgentKit {
   async postTweetReply(args: z.infer<typeof TwitterPostTweetReplySchema>) {
     return postTweetReply(args);
   }
+
+  /**
+   * Retrieves updates from Telegram
+   * @returns Telegram updates
+   */
+  async getTelegramUpdates() {
+    return getUpdates();
+  }
+
+  /**
+   * Sends a message to Telegram
+   * @param message The message to send
+   * @returns message details
+   */
+  async sendTelegramMessage(message: z.infer<typeof TelegramSendMessageSchema>) {
+    return sendMessage(message);
+  }
+  
 }
