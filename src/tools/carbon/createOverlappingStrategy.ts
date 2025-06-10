@@ -9,21 +9,21 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 
 import { SeiAgentKit } from "../../index";
 import { SEI_RPC_URL, MAX_BLOCK_AGE } from "../../constants";
-import { type StrategyType, getStrategyTypeParams } from "./utils";
+import { getOverlappingStrategyParams } from "./utils";
 
 /**
  
  */
-export async function createBuySellStrategy(
+export async function createOverlappingStrategy(
   agent: SeiAgentKit,
   config: ContractsConfig,
-  type: StrategyType,
   baseToken: string,
   quoteToken: string,
-  buyRange: string | string[] | undefined,
-  sellRange: string | string[] | undefined,
+  sellPriceLow: string | undefined,
+  buyPriceHigh: string | undefined,
   buyBudget: string | undefined,
   sellBudget: string | undefined,
+  fee: number,
   overrides?: PayableOverrides,
 ): Promise<string | null> {
   const provider = new JsonRpcProvider(SEI_RPC_URL);
@@ -34,20 +34,21 @@ export async function createBuySellStrategy(
   const {
     buyPriceLow,
     buyPriceMarginal,
-    buyPriceHigh,
+    buyPriceHigh: parsedBuyPriceHigh,
     buyBudget: parsedBuyBudget,
-    sellPriceLow,
+    sellPriceLow: parsedSellPriceLow,
     sellPriceMarginal,
     sellPriceHigh,
     sellBudget: parsedSellBudget,
-  } = await getStrategyTypeParams(
-    type,
+  } = await getOverlappingStrategyParams(
+    carbonSDK,
     baseToken,
     quoteToken,
+    sellPriceLow,
+    buyPriceHigh,
     buyBudget,
     sellBudget,
-    buyRange,
-    sellRange,
+    fee,
   );
 
   const populatedTx = await carbonSDK.createBuySellStrategy(
@@ -55,9 +56,9 @@ export async function createBuySellStrategy(
     quoteToken,
     buyPriceLow,
     buyPriceMarginal,
-    buyPriceHigh,
+    parsedBuyPriceHigh,
     parsedBuyBudget,
-    sellPriceLow,
+    parsedSellPriceLow,
     sellPriceMarginal,
     sellPriceHigh,
     parsedSellBudget,

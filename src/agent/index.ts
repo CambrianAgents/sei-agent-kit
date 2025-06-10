@@ -17,6 +17,7 @@ import {
   composeTradeBySourceTx,
   composeTradeByTargetTx,
   createBuySellStrategy,
+  createOverlappingStrategy,
   deleteStrategy,
   getLiquidityByPair,
   getMaxRateByPair,
@@ -38,6 +39,7 @@ import {
   getTakaraTTokenAddress
 } from '../tools/takara';
 import { swap } from '../tools/symphony/swap';
+import { StrategyType } from "../tools/carbon";
 
 export class SeiAgentKit {
   public publicClient: ViemPublicClient;
@@ -186,7 +188,7 @@ export class SeiAgentKit {
    * @param ticker The token ticker (e.g., "USDC")
    * @param mintAmount The amount to mint in human-readable format
    * @returns Transaction hash and expected tToken amount
-  */
+   */
   async mintTakara(ticker: string, mintAmount: string) {
     return mintTakara(this, { ticker, mintAmount });
   }
@@ -196,7 +198,7 @@ export class SeiAgentKit {
    * @param ticker The token ticker (e.g., "USDC")
    * @param borrowAmount The amount to borrow in human-readable format
    * @returns Transaction hash and borrowed amount
-  */
+   */
   async borrowTakara(ticker: string, borrowAmount: string) {
     return borrowTakara(this, { ticker, borrowAmount });
   }
@@ -210,46 +212,46 @@ export class SeiAgentKit {
   async repayTakara(ticker: string, repayAmount: string) {
     return repayTakara(this, { ticker, repayAmount });
   }
-  
+
   /**
    * Redeems tTokens from the Takara Protocol to get underlying tokens back
    * @param ticker The token ticker (e.g., "USDC")
    * @param redeemAmount The amount to redeem in human-readable format, or "MAX" to redeem all
    * @param redeemType Whether to redeem underlying tokens or tTokens
    * @returns Transaction details and redemption status
-  */
+   */
  async redeemTakara(ticker: string, redeemAmount: string, redeemType: RedeemTakaraParams['redeemType'] = 'underlying') {
-   return redeemTakara(this, { ticker, redeemAmount, redeemType });
+    return redeemTakara(this, { ticker, redeemAmount, redeemType });
   }
-  
+
   /**
    * Calculates the amount of underlying tokens that can be redeemed by a user
    * @param ticker The token ticker (e.g., "USDC")
    * @param userAddress Optional address of the user to check
    * @returns Information about redeemable amounts
-  */
- async getRedeemableAmount(ticker: string, userAddress?: Address) {
-   const tTokenAddress = getTakaraTTokenAddress(ticker);
-   if (!tTokenAddress) {
-     throw new Error(`No Takara tToken found for ticker: ${ticker}`);
+   */
+  async getRedeemableAmount(ticker: string, userAddress?: Address) {
+    const tTokenAddress = getTakaraTTokenAddress(ticker);
+    if (!tTokenAddress) {
+      throw new Error(`No Takara tToken found for ticker: ${ticker}`);
     }
     return getRedeemableAmount(this, tTokenAddress, userAddress);
   }
-  
+
   /**
    * Retrieves the current borrow balance for a user
    * @param ticker The token ticker (e.g., "USDC")
    * @param userAddress Optional address of the user to check
    * @returns Information about the borrow balance
-  */
- async getBorrowBalance(ticker: string, userAddress?: Address) {
-   const tTokenAddress = getTakaraTTokenAddress(ticker);
-   if (!tTokenAddress) {
-     throw new Error(`No Takara tToken found for ticker: ${ticker}`);
+   */
+  async getBorrowBalance(ticker: string, userAddress?: Address) {
+    const tTokenAddress = getTakaraTTokenAddress(ticker);
+    if (!tTokenAddress) {
+      throw new Error(`No Takara tToken found for ticker: ${ticker}`);
     }
     return getBorrowBalance(this, tTokenAddress, userAddress);
   }
-  
+
   // DragonSwap methods
   /**
    * Adds liquidity to a DragonSwap pool
@@ -261,15 +263,15 @@ export class SeiAgentKit {
    * @param tickLower The lower tick of the position
    * @param tickUpper The upper tick of the position
    * @returns Transaction hash or details
-  */
- async addDragonSwapLiquidity(
-   token0: Address,
-   token1: Address,
-   amount0: string,
-   amount1: string,
-   fee: number,
-   tickLower: number,
-   tickUpper: number,
+   */
+  async addDragonSwapLiquidity(
+    token0: Address,
+    token1: Address,
+    amount0: string,
+    amount1: string,
+    fee: number,
+    tickLower: number,
+    tickUpper: number,
   ): Promise<string> {
     return addLiquidity(
       this,
@@ -282,16 +284,16 @@ export class SeiAgentKit {
       tickUpper
     );
   }
-  
+
   /**
    * Removes liquidity from a DragonSwap pool
    * @param tokenId The ID of the NFT position token
    * @param liquidity Optional: The amount of liquidity to remove (if undefined, removes all)
    * @returns Transaction hash or details
-  */
- async removeDragonSwapLiquidity(
-   tokenId: bigint,
-   liquidity?: bigint,
+   */
+  async removeDragonSwapLiquidity(
+    tokenId: bigint,
+    liquidity?: bigint,
   ): Promise<string> {
     return removeLiquidity(this, tokenId, liquidity);
   }
@@ -319,7 +321,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return composeTradeBySourceTx(this, config, sourceToken, targetToken, tradeActions, deadline, minReturn, overrides);
   }
-  
+
   /**
    * Composes a trade transaction based on the target token amount using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -342,7 +344,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return composeTradeByTargetTx(this, config, sourceToken, targetToken, tradeActions, deadline, maxInput, overrides);
   }
-  
+
   /**
    * Creates a buy/sell strategy using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -361,21 +363,44 @@ export class SeiAgentKit {
    */
   async createBuySellStrategy(
     config: ContractsConfig,
+    type: StrategyType,
     baseToken: string,
     quoteToken: string,
-    buyPriceLow: string,
-    buyPriceMarginal: string,
-    buyPriceHigh: string,
-    buyBudget: string,
-    sellPriceLow: string,
-    sellPriceMarginal: string,
-    sellPriceHigh: string,
-    sellBudget: string,
-    overrides?: PayableOverrides
+    buyRange: string | string[] | undefined,
+    sellRange: string | string[] | undefined,
+    buyBudget: string | undefined,
+    sellBudget: string | undefined,
+    overrides?: PayableOverrides,
   ): Promise<string | null> {
-    return createBuySellStrategy(this, config, baseToken, quoteToken, buyPriceLow, buyPriceMarginal, buyPriceHigh, buyBudget, sellPriceLow, sellPriceMarginal, sellPriceHigh, sellBudget, overrides);
+    return createBuySellStrategy(this, config, type, baseToken, quoteToken, buyRange, sellRange, buyBudget, sellBudget, overrides);
   }
-  
+
+  /**
+   * Creates an overlapping LP strategy using Carbon SDK.
+   * @param config The Carbon contracts configuration.
+   * @param baseToken The address of the base token.
+   * @param quoteToken The address of the quote token.
+   * @param sellPriceLow The lower bound of the sell price range.
+   * @param buyPriceHigh The upper bound of the buy price range.
+   * @param buyBudget The budget allocated for buying.
+   * @param sellBudget The budget allocated for selling.
+   * @param overrides Optional transaction overrides.
+   * @returns Promise with the transaction hash or null.
+   */
+  async createOverlappingStrategy(
+    config: ContractsConfig,
+    baseToken: string,
+    quoteToken: string,
+    sellPriceLow: string | undefined,
+    buyPriceHigh: string | undefined,
+    buyBudget: string | undefined,
+    sellBudget: string | undefined,
+    fee: number,
+    overrides?: PayableOverrides,
+  ): Promise<string | null> {
+    return createOverlappingStrategy(this, config, baseToken, quoteToken, sellPriceLow, buyPriceHigh, buyBudget, sellBudget, fee, overrides);
+  }
+
   /**
    * Deletes a strategy using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -388,7 +413,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return deleteStrategy(this, config, strategyId);
   }
-  
+
   /**
    * Gets the liquidity for a token pair using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -403,7 +428,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return getLiquidityByPair(this, config, sourceToken, targetToken);
   }
-  
+
   /**
    * Gets the maximum rate for a token pair using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -418,7 +443,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return getMaxRateByPair(this, config, sourceToken, targetToken);
   }
-  
+
   /**
    * Gets the minimum rate for a token pair using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -433,7 +458,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return getMinRateByPair(this, config, sourceToken, targetToken);
   }
-  
+
   /**
    * Gets the rate liquidity depths for a token pair using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -450,7 +475,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return getRateLiquidityDepthsByPair(this, config, sourceToken, targetToken, rates);
   }
-  
+
   /**
    * Gets the strategies for a user using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -463,7 +488,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return getUserStrategies(this, config, user);
   }
-  
+
   /**
    * Checks if there is liquidity for a token pair using Carbon SDK.
    * @param config The Carbon contracts configuration.
@@ -478,7 +503,7 @@ export class SeiAgentKit {
   ): Promise<string | null> {
     return hasLiquidityByPair(this, config, sourceToken, targetToken);
   }
-  
+
   /**
    * Updates a strategy using Carbon SDK.
    * @param config The Carbon contracts configuration.
