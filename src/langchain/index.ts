@@ -1,12 +1,19 @@
-export * from './sei-erc20';
-export * from './sei-erc721';
-export * from './symphony';
-export * from './dexscreener';
-export * from './silo';
-export * from './takara';
-export * from './dragonswap';
+export * from "./sei-erc20";
+export * from "./sei-erc721";
+export * from "./symphony";
+export * from "./dexscreener";
+export * from "./silo";
+export * from "./takara";
+export * from "./dragonswap";
 
 import type { SeiAgentKit } from "../agent";
+import {
+  CarbonCreateDisposableStrategyTool,
+  CarbonCreateRecurringStrategyTool,
+  CarbonCreateOverlappingStrategyTool,
+  CarbonDeleteStrategyTool,
+  CarbonGetUserStrategiesTool,
+} from "./carbon";
 import {
   SeiERC20BalanceTool,
   SeiERC20TransferTool,
@@ -24,9 +31,8 @@ import {
   SeiGetRedeemableAmountTool,
   SeiGetBorrowBalanceTool,
   DragonSwapAddLiquidityTool,
-  DragonSwapRemoveLiquidityTool
-} from './index';
-
+  DragonSwapRemoveLiquidityTool,
+} from "./index";
 
 export function createSeiTools(seiKit: SeiAgentKit) {
   return [
@@ -47,5 +53,10 @@ export function createSeiTools(seiKit: SeiAgentKit) {
     new SeiRedeemTakaraTool(seiKit),
     new SeiGetRedeemableAmountTool(seiKit),
     new SeiGetBorrowBalanceTool(seiKit),
+    new CarbonCreateDisposableStrategyTool(seiKit),
+    new CarbonCreateRecurringStrategyTool(seiKit),
+    new CarbonCreateOverlappingStrategyTool(seiKit),
+    new CarbonDeleteStrategyTool(seiKit),
+    new CarbonGetUserStrategiesTool(seiKit),
   ];
 }

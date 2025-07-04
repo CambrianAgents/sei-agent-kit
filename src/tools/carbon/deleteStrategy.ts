@@ -1,10 +1,14 @@
-import { Toolkit } from '@bancor/carbon-sdk/strategy-management';
-import { initSyncedCache } from '@bancor/carbon-sdk/chain-cache';
-import { ContractsApi, ContractsConfig } from '@bancor/carbon-sdk/contracts-api';
-import { JsonRpcProvider } from '@ethersproject/providers';
+import { Toolkit } from "@bancor/carbon-sdk/strategy-management";
+import { initSyncedCache } from "@bancor/carbon-sdk/chain-cache";
+import {
+  ContractsApi,
+  ContractsConfig,
+} from "@bancor/carbon-sdk/contracts-api";
+import { JsonRpcProvider } from "@ethersproject/providers";
 
 import { SeiAgentKit } from "../../index";
-import { SEI_RPC_URL, MAX_BLOCK_AGE } from '../../constants';
+import { SEI_RPC_URL, MAX_BLOCK_AGE } from "../../constants";
+import { Account } from "viem";
 
 /**
  
@@ -14,27 +18,25 @@ export async function deleteStrategy(
   config: ContractsConfig,
   strategyId: string,
 ): Promise<string | null> {
-  try {
-    const provider = new JsonRpcProvider(SEI_RPC_URL);
-    const api = new ContractsApi(provider, config);
-    const { cache } = initSyncedCache(api.reader, undefined, MAX_BLOCK_AGE);
-    const carbonSDK = new Toolkit(api, cache, undefined);
+  const provider = new JsonRpcProvider(SEI_RPC_URL);
+  const api = new ContractsApi(provider, config);
+  const { cache } = initSyncedCache(api.reader, undefined, MAX_BLOCK_AGE);
+  const carbonSDK = new Toolkit(api, cache, undefined);
 
-    const populatedTx = await carbonSDK.deleteStrategy(strategyId);
+  const populatedTx = await carbonSDK.deleteStrategy(strategyId);
 
-    const viemTx = {
-      chain: agent.walletClient.chain,
-      account: agent.walletClient.account?.address as `0x${string}`,
-      to: populatedTx.to as `0x${string}`,
-      data: populatedTx.data as `0x${string}`,
-      value: populatedTx.value ? BigInt(populatedTx.value.toString()) : 0n,
-      gas: populatedTx.gasLimit ? BigInt(populatedTx.gasLimit.toString()) : undefined,
-      nonce: populatedTx.nonce,
-    };
+  const viemTx = {
+    chain: agent.walletClient.chain,
+    account: agent.walletClient.account as Account,
+    to: populatedTx.to as `0x${string}`,
+    data: populatedTx.data as `0x${string}`,
+    value: 0n,
+    gas: populatedTx.gasLimit
+      ? BigInt(populatedTx.gasLimit.toString())
+      : undefined,
+    nonce: populatedTx.nonce,
+  };
 
-    const txHash = await agent.walletClient.sendTransaction(viemTx);
-    return txHash;
-  } catch (error) {
-    throw error;
-  }
+  const txHash = await agent.walletClient.sendTransaction(viemTx);
+  return txHash;
 }

@@ -6,29 +6,31 @@ import {
   ContractsConfig,
 } from "@bancor/carbon-sdk/contracts-api";
 import { JsonRpcProvider } from "@ethersproject/providers";
-
 import { SeiAgentKit } from "../../index";
 import { SEI_RPC_URL, MAX_BLOCK_AGE } from "../../constants";
 import {
-  type StrategyType,
   carbonERC20InfiniteApproval,
-  getStrategyTypeParams,
+  getOverlappingStrategyParams,
+  UINT256_MAX,
 } from "./utils";
 import { Account, Address } from "viem";
+import { approveToken } from "../../utils";
 
 /**
  
  */
-export async function createBuySellStrategy(
+export async function createOverlappingStrategy(
   agent: SeiAgentKit,
   config: ContractsConfig,
-  type: StrategyType,
   baseToken: Address,
   quoteToken: Address,
-  buyRange: string | string[] | undefined,
-  sellRange: string | string[] | undefined,
+  buyPriceLow: string | undefined,
+  sellPriceHigh: string | undefined,
   buyBudget: string | undefined,
   sellBudget: string | undefined,
+  fee: number,
+  range: number,
+  marketPriceOverride: string | undefined,
   overrides?: PayableOverrides,
 ): Promise<string | null> {
   const provider = new JsonRpcProvider(SEI_RPC_URL);
@@ -37,22 +39,25 @@ export async function createBuySellStrategy(
   const carbonSDK = new Toolkit(api, cache, undefined);
 
   const {
-    buyPriceLow,
+    buyPriceLow: parsedBuyPriceLow,
     buyPriceMarginal,
     buyPriceHigh,
     buyBudget: parsedBuyBudget,
     sellPriceLow,
     sellPriceMarginal,
-    sellPriceHigh,
+    sellPriceHigh: parsedSellPriceHigh,
     sellBudget: parsedSellBudget,
-  } = await getStrategyTypeParams(
-    type,
+  } = await getOverlappingStrategyParams(
+    carbonSDK,
     baseToken,
     quoteToken,
+    buyPriceLow,
+    sellPriceHigh,
     buyBudget,
     sellBudget,
-    buyRange,
-    sellRange,
+    fee,
+    range,
+    marketPriceOverride,
   );
 
   // 1. Approve required tokens
@@ -61,46 +66,42 @@ export async function createBuySellStrategy(
   if (!carbonController) {
     throw new Error("Carbon Controller Address cannot be undefined");
   }
-  if (sellBudget !== "0") {
-    carbonERC20InfiniteApproval(
-      agent,
-      baseToken,
-      carbonController as `0x${string}`,
-    );
-  }
-  if (buyBudget !== "0") {
-    carbonERC20InfiniteApproval(
-      agent,
-      quoteToken,
-      carbonController as `0x${string}`,
-    );
-  }
+  carbonERC20InfiniteApproval(
+    agent,
+    baseToken,
+    carbonController as `0x${string}`,
+  );
+  carbonERC20InfiniteApproval(
+    agent,
+    quoteToken,
+    carbonController as `0x${string}`,
+  );
 
-  // 2. Create strategy populated tx
   console.log(`
-    Creating Buy/Sell Strategy
+    Creating Overlapping Strategy
     
     baseToken is ${baseToken}
     quoteToken is ${quoteToken}
     buyBudget is ${parsedBuyBudget}
-    buyPriceLow is ${buyPriceLow}
+    buyPriceLow is ${parsedBuyPriceLow}
     buyPriceMarginal is ${buyPriceMarginal}
     buyPriceHigh is ${buyPriceHigh}
     sellBudget is ${parsedSellBudget}
     sellPriceLow is ${sellPriceLow}
     sellPriceMarginal is ${sellPriceMarginal}
-    sellPriceHigh is ${sellPriceHigh}
+    sellPriceHigh is ${parsedSellPriceHigh}
     `);
+  // 2. Create strategy populated tx
   const populatedTx = await carbonSDK.createBuySellStrategy(
     baseToken,
     quoteToken,
-    buyPriceLow,
+    parsedBuyPriceLow,
     buyPriceMarginal,
     buyPriceHigh,
     parsedBuyBudget,
     sellPriceLow,
     sellPriceMarginal,
-    sellPriceHigh,
+    parsedSellPriceHigh,
     parsedSellBudget,
     overrides,
   );
