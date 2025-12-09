@@ -77,7 +77,7 @@ npm run test
 ## 🔗 Links
 
 - [Twitter](https://x.com/cambrian_ai)
-- [Website](https://cambrian.wtf)
+- [Website](https://www.cambrian.wtf/)
 
 ## 🤝 Contributing
 
