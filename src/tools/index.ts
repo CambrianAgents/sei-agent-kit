@@ -7,4 +7,5 @@ export * from './symphony';
 export * from './carbon';
 export * from './twitter';
 export * from './citrex';
+export * from './yei';
 

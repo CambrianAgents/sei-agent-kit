@@ -6,6 +6,7 @@ export * from './silo';
 export * from './takara';
 export * from './twitter';
 export * from './citrex';
+export * from './yei';
 
 import type { SeiAgentKit } from "../agent";
 import {
@@ -55,6 +56,13 @@ import {
   SeiGetAccountDetailsTool,
   SeiGetAccountMentionsTool,
   SeiPostTweetReplyTool,
+  SeiYeiSupplyTool,
+  SeiYeiWithdrawTool,
+  SeiYeiBorrowTool,
+  SeiYeiRepayTool,
+  SeiYeiClaimRewardsTool,
+  SeiYeiGetUserDataTool,
+  SeiYeiGetAPRDataTool,
 } from './index';
 
 export function createSeiTools(seiKit: SeiAgentKit) {
@@ -103,5 +111,12 @@ export function createSeiTools(seiKit: SeiAgentKit) {
     new SeiCitrexListPositionsTool(seiKit),
     new SeiCitrexPlaceOrderTool(seiKit),
     new SeiCitrexPlaceOrdersTool(seiKit),
+    new SeiYeiSupplyTool(seiKit),
+    new SeiYeiWithdrawTool(seiKit),
+    new SeiYeiBorrowTool(seiKit),
+    new SeiYeiRepayTool(seiKit),
+    new SeiYeiClaimRewardsTool(seiKit),
+    new SeiYeiGetUserDataTool(seiKit),
+    new SeiYeiGetAPRDataTool(seiKit),
   ];
 }
